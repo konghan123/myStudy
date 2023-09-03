@@ -1,0 +1,159 @@
+표들을 그룹핑한것이 데이터베이스(=스키마)
+데이터베이스를 그룹핑한 것이 데이터베이스 서버
+데이터베이스 효용 1.보안 (데이터베이스는 자체적인 보안체계를 가지고 있다)
+                          2.권한 기능 (권한을 주어 특정 구간만 제어할 수 있는 권한을 부여할 수있다.)
+-u >> 이런 사용자로 접근하겟다는 뜻 ex.-uroot 루트사용자로 접근                          
+-p >> 비밀번호를 물어보는 칸 생성
+스키마 만들기 >> CREATE DATABASE 데이터베이스 이름;
+스키마 지우기 >> DROP DATABASE 데이터베이스 이름;
+**윗쪽 화살표키를 누르면 이전에 썻던 문구가 뜸
+스키마 리스트 보기 >> SHOW DATABASES;
+스키마 사용 >> USE 데이터베이스 이름;
+**sql에는 콜럼에 다양한 문자를 넣을 수 있슴 >> 잘못사용하면 사용자끼리 헷갈림
+>> 그래서 데이터타입을 정해서 규제가능하다.
+
+표안의 컬럼 만들기 >> CREATE TABLE 테이블이름(
+                            -> id INT(노출시킬 숫자 수) 
+**NOT NULL >>값이 없는걸 허용하지 않겟는 뜻
+** 어떤 값을 부를때 아이디값을 부르는게 더 효율적 (이름으로 부르면 중복될 수 있슴)
+>>그래서 아이디콜럼을 자동적으로 1씩증가하는 것이 좋다.(중복되지 않는 식별자를 가진다) 
+>>AUTO_INCREMENT
+**글자 수 규제도 가능하다 >>VARCHAR(노출 시킬 글자 수)  
+**PRIMARY KEY(콜럼); >> 해당 테이블에 있는 이 콜럼이 메인키라는 뜻
+                              >> 이 컬럼은 중복이 불가능하다는 뜻
+테이블 보는 방법 >> SHOW TABLES FROM 데이터베이스 이름;
+자료 생성방법 >>INSERT문 >> INSERT INTO 테이블이름 (콜럼1, 콜럼2, 콜럼3 ..........)
+                   VALUES (자료1, 자료2, 자료3 ...............)               
+**DESC 테이블이름 >>> 그 테이블의 구조를 보여준다.
+자료 읽는 방법 >> SELECT * FROM 해당테이블; (해당 테이블의 모든데이터를 보여줌)
+                     >> SELECT 콜럼1, 콜럼2 FROM 해당 테이블 (콜럼1 콜럼2 자료를 보여줌)
+                     >> SELECT 콜럼1, 콜럼2 FROM 해당 테이블 WHERE 콜럼1 ='자료'; (콜럼1콜럼2에서 '자료'만 모아서 보여줌)
+                     >> SELECT 콜럼1, 콜럼2 FROM 해당 테이블 WHERE 콜럼1 ='자료' ORDER BY 콜럼1 DESC (콜럼1을 기준으로 큰순서대로 정렬하며 보여줌)
+                     >> SELECT 콜럼1, 콜럼2 FROM 해당 테이블 WHERE 콜럼1 ='자료' ORDER BY 콜럼1 DESC LIMIT 2 (콜럼1을 기준으로 큰순서대로 정렬하며 2개만 보여줌)
+***DESC는 내림차순 ASC는 오름차순(아무것도 임력안하면 기본적으로 ASC임)
+*** WHERE 콜럼1 = 3 >> 콜럼1이 '3'인 값의 데이터만을 걸러볼 수 있슴 (원하는 조건의 행만 걸러서 볼 수있다)
+***ORDER BY 콜럼1 ASC/DESC >> 콜럼1의 자료를 원하는 순서대로 데이터를 가져옴
+***LIMIT구문 건너뛸 갯수, 가져올 갯수 >> 원하는 위치에서 원하는 만큼 데이터를 가져옴
+업데이트 방법  >> UPDATE 테이블이름 SET 콜럼1='어떤값1', 콜럼2='어떤값2' WHERE 해당되는 행의 아무 콜럼 =' 그 콜럼에 들어있는 값'; 
+                          ( 해당되는 행에서 콜럼1에 어떤값1 콜럼2에 어떤값2를 수정한다는 뜻)
+******************************업데이트 할땐 WHERE 문 무조건 필수필수!!!!*****************
+삭제하는 방법 >>DELETE FROM 테이블이름 WHERE 해당되는 행의 아무 콜럼 =' 그 콜럼에 들어있는 값'; 
+*******************************삭제도 WHERE 문 필수필수!!!!*************************
+
+관계형 데이터베이스의 필요성 > 유지보수가 편해지고 중복으로 인한 문제를 줄일 수 있다.
+테이블 이름바꾸기 >> RENAME TABLE 테이블이름 TO 원하는 이름;
+JOIN의 사용법 >>SELECT * FROM 테이블이름 LEFT JOIN 합칠테이블이름 ON 연결될 콜럼2 = 연결될 콜럼1; (연결될콜럼은 테이블이름.콜럼1 이런식으로 써야함)
+***SELECT topic.id AS topic_id  FROM topic LEFT JOIN author ON topic.author_id = author.id; >> AS를 통해 콜럼의 이름을 바꿔줄 수 있다.
+JOIN >> 내부조인 (양쪽 모두에 값이 있는 행을 반환) (하나라도 없으면 안가져옴) (NULL 값)
+LEFT JOIN > 외부조인 (한쪽에라도 값이 있는 행을 반환) (하나라도 있으면 가져옴)
+원하는 서버 들어가기 >> mysql\ -uroot -p -h들어가고싶은도메인
+
+
+
+','를 통해서 다른열을 불러온다는 뜻 EX)SELECT 3 * (2 + 4) / 2, 'Hello';
+사칙연산 가능 >> SELECT 1 + 2; == 3
+SQL은 사칙연산에서 연산을 할때 문자열은 0으로 본다. EX) SELECT 'ABC' + 3; == 3
+(하지만 문자열이라도 그 값이 숫자로 되어있다면 숫자로 판단하여 사칙연산 가능!)
+열끼리도 연산 가능 EX)SELECT OrderID + ProductID FROM OrderDetails;
+참거짓 연산 >> TRUE 는 1 FALSE는 0으로 나타남
+                      !TRUE >> !는 반대로를 뜻함   참 반대는 거짓
+                      실질적으로 WHERE문과 많이 씀  EX. SELECT * FROM Customers WHERE TRUE;
+                       IS	>>양쪽이 모두 TRUE 또는 FALSE
+                        IS NOT  >>한쪽은 TRUE, 한쪽은 FALSE
+AND, OR연산 >> 언어와 똑같다.
+!= >> 값이 다름
+어떤수 BETWEEN {MIN} AND {MAX} >> 두값사이에 있다 EX. SELECT * FROM OrderDetails WHERE ProductID BETWEEN 1 AND 4;
+어떤수 NOT BETWEEN {MIN} AND {MAX} >>두 값 사이가 아닌 곳에 있음
+어떤수 IN(...) >> ()안에 어떤수값이 존재함 EX. SELECT * FROM Customers WHERE City IN ('Torino', 'Paris', 'Portland', 'Madrid')  ()안에 값이 포함된 자료들만 보여줌
+어떤수 NOT IN (... >>)   ()안에 어떤수값이 존재하지 않음 /  ()안에 값이 포함되지않는 자료들만 보여줌
+SELECT
+   LIKE 'hel%', > HEL뒤에 어떤 문자가 있어도 참
+   LIKE 'H%O',>   H와0사이에 어떤문자가 있어도 참
+   LIKE '%H', > H앞에 어떤 문자가 와도 참
+SELECT
+   LIKE 'hel__', >HEL뒤에 _의 갯수만큼 문자가 있으면 참
+   LIKE 'H__', > H뒤에 _갯수만큼 문자가 있으면 참
+   LIKE 'H__0',> H와 0사이에  _갯수만큼 문자가 있으면 참
+ROUND(숫자) >> 반올림
+CEIL(숫자) >> 올림
+FLOOR(숫자) >> 내림
+ABS(숫자) >> 절대값
+GREATEST( ) >>(괄호 안에서) 가장 큰 값
+LEAST( ) >>(괄호 안에서) 가장 작은 값
+MAX>>가장 큰 값       MAX와 GREATEST의 차이는 MAX는 어떤 컬럼을 기준으로 최대값이다.
+MIN>>가장 작은 값
+COUNT>> 갯수 (NULL값 제외) 
+POW(A, B), POWER(A, B) >>A를 B만큼 제곱
+SQRT >>제곱근       
+TRUNCATE(N, n)>>N을 소숫점 n자리까지 선택      
+CONCAT(...) >>괄호 안의 내용 이어붙임
+CONCAT_WS(S, ...) >> 괄호 안의 내용 S로 이어붙임 (자료 사이사이에 S가 들어간다)   
+ LEFT >>왼쪽부터 N글자  EX. SELECT LEFT('ABCDEFG', 3)
+RIGHT >>오른쪽부터 N글자
+SUBSTR >> 갯수를 제외하고 나머지만 읽음 EX. SELECT SUBSTR('ABCDEFG', 3) >> DEFG  EX.  SUBSTR('ABCDEFG', 3, 2) >> CD EX. SUBSTR('ABCDEFG', -4, 2) >> DE
+CHAR_LENGTH >> 문자열의 길이  EX. SELECT CHAR_LENGTH('안녕하세요') >> 5
+LPAD(S, N, P) >> N글자수가 될떄까지 S에 P를 왼쪽부터 이어붙임
+RPAD(S, N, P) >> 오른쪽부터 이어붙임
+REPLACE(S, A, B) >> S안에 있는 A를 B로 바꿈
+INSTR(S,s) >> S안에서 s의 번째위치를 보여줌 , 없으면 0 EX. INSTR('ABCDE','DE') >> 4
+CAST(A, T) >>A를 T 자료형으로 변환
+CURDATE()>>현재 날짜 반환
+CURTIME()>>현재 시간 반환
+NOW()>>현재 시간과 날짜 반환
+DATE('문자')>>문자열에 따라 날짜 생성 EX. DATE(2022-3-15) 
+TIME('문자')>>문자열에 따라 시간 생성
+HOUR() >>주어진 DATETIME의 시 반환
+MINUTE()>>주어진 DATETIME의 분 반환
+SECOND()>>주어진 DATETIME의 초 반환
+ADDDATE() >> 시간/날짜 더하기
+SUBDATE() >> 시간/날짜 빼기
+DATE_DIFF>>두 시간/날짜 간 일수차 EX. WHERE ABS(DATEDIFF(OrderDate, '1996-10-10')) < 5;
+TIME_DIFF	>>두 시간/날짜 간 시간차
+DATE_FORMAT(S,s1,s2,s3) >S날짜로 s형식으로 변경 EX. 시간/날짜를 지정한 형식으로 반환SELECT REPLACE(REPLACE(DATE_FORMAT(NOW(), '%Y년 %m월 %d일 %p %h시 %i분 %초'),'AM', '오전'),'PM', '오후')
+IF(조건,T,F) >> 조건이 참이라면 T, 거짓이면 F 반환
+CASE문 >> 조건이 좀더 복잡할때 쓰임
+EX. SELECT
+CASE
+  WHEN -1 > 0 THEN '-1은 양수다.'
+  WHEN -1 = 0 THEN '-1은 0이다.'
+  ELSE '-1은 음수다.'
+END;
+
+IFNULL(A, B) >>A가 NULL일 시 B 출력
+GROUP BY >> 중복되지않게 원하는 값을 모아서 보여준다. EX. SELECT Country FROM Customers GROUP BY Country;
+WITH ROLLUP >> 전체를 합친값이 나옴 EX. SELECT Country, COUNT(*) FROM Suppliers GROUP BY Country WITH ROLLUP;
+(ORDER BY랑은 같이 못씀)
+HAVING >> 그룹화된 데이터 걸러내기 EX. SELECT Country, COUNT(*) AS Count FROM Suppliers GROUP BY Country HAVING Count >= 3; 
+(WHERE는 그룹하기 전 데이터, HAVING은 그룹 후 집계에 사용합니다.)
+(즉, WHERE문으로 먼저 걸러낸다음 그룹화시키고 나서 HAVING으로 또 데이터를 걸러냄)
+DISTINCT >> 중복된 함수를 제거 (GROUP BY처럼 정렬은 해주지 않는다, COUNT같은 집계함수랑 사용하지 않는다.) EX. SELECT DISTINCT CategoryID FROM Products;
+(GROUP BY 보다 가벼운 함수)
+
+서브쿼리 >> 쿼리안에 있는 쿼리를 뜻함
+비상관서브쿼리 EX. SELECT CategoryID, CategoryName, Description, (SELECT ProductName FROM Products WHERE ProductID = 1) FROM Categories;
+상관서브쿼리 SELECT ProductID, ProductName, (SELECT CategoryName FROM Categories C WHERE C.CategoryID = P.CategoryID) AS CategoryName FROM Products P; 
+ALL(서브쿼리) >> ALL안 서브쿼리에 나오는 모든 값에 대해서 검색
+ANY(서브쿼리) >> ANY안 서브쿼리에 나오는 하나이상 값에 대해서 검색
+ 
+UNION VS JOIN >> 조인은 양옆으로 유니온은 위아래로 자료를 합침
+***UNION은 중복된 값은 포함안됨 그래서 UNION ALL을 해주면 중복된 값도 보여준다.(합집함)
+
+AUTO_INCREMENT	새 행 생성시마다 자동으로 1씩 증가
+PRIMARY KEY	중복 입력 불가, NULL(빈 값) 불가
+UNIQUE	     중복 입력 불가
+NOT NULL	NULL(빈 값) 입력 불가
+UNSIGNED	(숫자일시) 양수만 가능
+DEFAULT	값 입력이 없을 시 기본값
+
+정수 자료형
+TINYINT ,SMALLINT, MEDIUMINT, INT, BIGINT
+실수 자료형
+DECIMAL(글자수, 자릿수) ,FLOAT, DOUBLE
+문자 자료형
+CHAR(글자수) > 글자 수 고정!(남는 글자수는 스페이스로 채움)
+VARCHAR(글자수) >가변적으로 글자 수를 채움 (4보다 낮을 경우 CHAR로 바뀜)
+텍스트 자료형
+TINYTEXT, TEXT, MEDIUMTEXT, LONGTEXT
+시간 자료형
+TIMESTAMP >> 각 국가의 시간대로 바뀔 수 있다
+

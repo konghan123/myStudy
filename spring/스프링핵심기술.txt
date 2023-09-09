@@ -76,7 +76,52 @@
 - 서블릿은 개발자를 대신하여 http요청 메세지를 파싱하는데 
   그 결과를 httpServletRequest 객체에 담아서 제공
  
-  
+* http요청 데이터
+- 서버로 데이터를 넘기는 방식
+--GET 쿼리파라미터
+--- ex. /url?username=hello&age=20
+--- 메세지 바디없이 URL의 퀴리 파라미터에 데이터를 포함
+--POST HTML FORM
+--- 메시지 바디에 쿼리 파리미터 형식으로 전달 username=hello&age=20 
+--- content-type(메시지 바디에 대한 정보를 설명)
+--HTTP message body에 데이터를 직접 담음
+--- HTTP API에서 주로 사용 
+--- 데이터 형식은 주로 JSON
+--- 단순 텍스트의 경우(content-type은 text)
+---- request객체에서 getInputStream()을 통해 서블릿스트림 객체 호출
+     이후 해당 객체에 담긴 메세지바디의 데이터를 String타입으로 변경
+      (StreamUtils.copyToString(스트림객체, 캐릭터셋)
+--- JSON의 경우(content-type은 json)(라이브러리필요)
+---- JSON 데이터를 파싱할 수 있는 객체가 필요!!( 직접 만들어줌)
+---- request객체에서 getInputStream()을 통해 서블릿스트림 객체 호출
+     이후 해당 객체에 담긴 메세지바디의 데이터를 String타입으로 변경
+---- ObjectMapper 객체를 생성하여 readValue(메세지바디, 파싱클래스)
+      를 통해 해당 값을 담은 파싱객체 생성
+
+* httpServletReponse
+- 해당 객체를 통해 다양한 세팅을 제공함
+  (HTTP응답 코드 지정, 헤더 생성 ,바디 생성, 쿠키, Redirect, content-type)
+- setStatus(응답코드) 메서드를 통해 응답코드 세팅가능
+- setHeader(name[헤더이름], value)
+  (내가 만든 헤더도 세팅 가능)
+  (헤더에 관한 편의 메서드도 존재함)
+- 쿠키 세팅
+-- 쿠키 객체를 만들어서 response의 addCookie(쿠키)를 통해 쿠키를 세팅 가능
+   (쿠키 객체는 setMaxAge(초)를 통해 유지 시간 세팅 가능)
+- sendRedirect(URL)을 통해 해당 URL로 리타이렉트
+- 메시지 바디 세팅
+-- getWriter()메서드를 통해 PrintWriter객체를 호출
+   이후 해당 PrintWriter의 println(메시지)를 통해 응답 메시지바디 세팅
+
+* http응답 데이터
+- 클라이언트로 데이터를 넘기는 방식
+-- 단순텍스트
+-- HTTP API (JSON) (라이브러리 필요)
+--- ObjectMapper의 writeValueAsString(객체) 를 통해
+     해당 데이터를 JSON으로 변경
+
+ 
+
 
 
 

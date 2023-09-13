@@ -164,8 +164,29 @@
 - 현재는 한가지 컨트롤러 인터페이스만 사용가능하다
 - 하지만 여러가지 컨트롤러를 유연하게 쓰려면
   어댑터 패턴이 필요하다.
-- 
 
+6.springMVC 전체 구조
+- DispatcherServlet = frontController
+-- 스프링 부트는 DispatcherServlet을 서블릿으로 자동으로 등록
+-- doDispatch()메서드가 호출됨 (가장 중요한 메서드)(frontcontroller의 service메서드 느낌)
+- 주요 인터페이스 목록
+-- 핸들러 매핑 (HandlerMapping)
+--- 핸들러 매핑에서 빈이름에 해당하는 핸들러를 찾음
+--- RequsetMappingHandlerMapping(어노테이션 기반)(1순위) 
+     BeanNameUrlHandlerMapping(빈이름으로 찾음)(2순위)
+-- 핸들러 어댑터 (HandlerAdapter)
+--- 찾은 핸들러를 실행시킬 핸들러 어뎁터를 찾고 실행
+--- RequsetMappingHandlerAdapter(어노테이션 RequestMapping인것 처리)(1순위)
+--- HttpRequestHandlerAdapter(인터페이스 httpRequestHandler인 것을 처리)(2순위)
+--- SimpleControllerHandlerAdapter(인터페이스 controller를 처리)(3순위)
+*** 핸들러 매핑, 핸들러 어댑터 모두 순서대로 찾고 없으면 다음순서로 넘어감
+-- 뷰 리졸버 (ViewResolver)
+--- application.properties에 등록한 spring.mvc.view.prefix, or ...suffix설정 정보를
+     등록하여 물리주소를 정해줌
+--- BeanNameViewResolver(빈이름으로 뷰를 찾아서 반환)(1순위)
+--- InternalResourceViewResolver(jsp를 처리할 수 있는 뷰를 반환)(2순위)
+
+-- 뷰 (View)
 
 
 

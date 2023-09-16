@@ -185,10 +185,162 @@
      등록하여 물리주소를 정해줌
 --- BeanNameViewResolver(빈이름으로 뷰를 찾아서 반환)(1순위)
 --- InternalResourceViewResolver(jsp를 처리할 수 있는 뷰를 반환)(2순위)
-
 -- 뷰 (View)
 
+- 어노테이션
+--@Controller -> 자동으로 스프링 빈으로 등록하고
+                        어노테이션 기반 컨트롤러로 인식
+--@RequestMapping 
+---지정한 URL이 호출되면 해당 메서드 호출됨
+--- 다중으로 URL지정 가능
+---클래스 레벨에 적용시켜서 어노테이션 기반으로 동작하게 인식함
+--- 클래스레벨에 적용시켜서 컨트롤러 메서드의 공통되는 물리주소를 적용시킬 수 있음
+--- 파라미터에 method를 넣어주면 전송방식을 지정해줄 수 있음
+---- @GetMapping, @PostMapping으로 대체 가능
+--@RequestParam(이름)
+--- RequestMapping에 들어갈 파라미터를 해당이름으로 직접 지정해줄 수 있음                                   
+--- ex.) @RequestParam("user") == request.getParameter("user")
 
+7.spring MVC 기본 
 
+-로깅
+-- 로그를 사용하는 이유
+--- 쓰레드 정보, 클래스이름 같은 부가 정보도 확인가능하며 출력 여부를 상황에 맞게 조절가능
+--- 파일로도 남길 수 있음
 
+-- slf4j라는 로그라이브러르들을 통합해서 인터페이스로 제공하여 그것의 구현체로
+    logback을 스프링에서 지원
+-- @RestController
+--- 반환 값으로 뷰로 인식하지 않고 Http메시지 바디에 바로 입력한다. 
+-- log객체를 만들어서 해당 로그 객체의 메서드를 통해 로그를 남기는 방식
+-- trace, debug, info, warn, error 메서드들로 로그를 남길 수 있으며 
+    메서드들 간의 기능 차이는 없지만 로그 레벨이라는 것이 존재하여   
+    메서드마다 의미를 두어서 사용한다!!
+    trace, debug, info, warn, error 순으로 범위가 낮아짐
 
+--로그레벨 기본설정
+--- application.properties에서 설정 가능하다
+--- logging.level.root = 로그레벨
+---- 전제 로그레벨을 설정
+--- logging.level.하위주소 = 로그레벨
+---- 해당 하위주소에대한 로그레벨 설정
+
+-- 롬복이 제공하는 어노테이션 중에 @Slf4j를 클래스레벨에 적용하여
+     굳이 로그 객체를 생성할 필요가 없다
+-- 올바른 로그 사용법
+--- log.trace("data=" + data) vs log.trace("data={}", data)
+--- 전자는 연산이 일어나기에 메모리를 씀 하지만
+     info레벨만 확인하는 경우에도 전자의 경우 연산이 일어나게 되기에
+     쓸데없이 리소스를 사용하게 된다.
+     (즉 후자가 올바르다)
+
+- 요청 매핑
+-- PathVariable(경로변수)
+--- @GetMapping("/hello/{userId}")
+     public String method(@PathVariable("userId") String id)
+--- 경로로 변수를 넣을 수 있으며 해당 메서드에서 경로변수를 사용할 수 있다.
+--- 많이 사용됨
+--- URL로 데이터를 끌고올 때 쿼리파라미터를 쓰는 방식, 경로변수를 쓰는 방식이 존재
+--- 다중으로도 사용 가능하다
+     (ex."/hello/{userId}/order/{orderId}"
+
+-- 파라미터로 조건 매핑
+--- 쿼리파라미터에 특정 값이 있어야지만 해당 매핑메서드 호출
+--- 쿼리파라미터이기에 메서드에서 사용 가능
+--- RequestMapping(value="", params = 조건)
+--- ex . 조건 예시
+          * params ="mode", 
+          * params ="!mode" 
+          * params ="mode=debug" 
+          * params ="mode!=debug" (! = ) 
+
+-- 헤더 값으로 조건 매핑
+--- 해당하는 헤더 값이 있어야 해당 매핑메서드 호출
+--- RequestMapping(value="", headers = 조건)
+
+-- 요청 헤더의 미디어 타입 조건 매핑( Content-Type)
+--- RequestMapping(value="", consume = 조건)
+
+-- 요청 헤더의 Accept 값 조건 매핑( Accept)
+--- RequestMapping(value="", produce= 조건)
+
+- 요청 기본, 헤더 조회
+-- 어노테이션 기반 컨트롤러의 메서드는 다양한 파라미터를 가질 수 있다.
+-- 조회 가능한 값들
+--- httpServletRequest, httpServletResponse, 
+--- httpMethod : http메서드 조회
+--- Locale : locale정보 조회 (언어 등)
+--- @RequestHeader MutiValueMap<String, String> map : 모든 HTTP 헤더 값을 조회
+---- MutiValueMap은 하나의 키에 여러 값을 받을 수 있음
+---- get()하면 배열을 반환함
+--- @ RequestHeader("헤더키") : 특정 헤더값 조회
+--- @ CookieValue(value = "쿠키이름" , required = 필수값여부 ) String cookie : 특정 쿠키 값 조회
+
+- 요청 파라미터
+-- 단순타입의 경우 @RequestParam을 생략 가능
+
+-- 필수 파라미터 여부 설정
+--- @RequestParam(required=해당 파라미터 값 여부)
+--- 기본값은 true
+--- true인데 해당 파라미터 값이 없으면 400에러 발생
+*** 자바에선 int는 null이 들어갈 수 없기에 null을 넣을거면 Integer을 써야함
+
+-- 파라미터 기본값 설정
+--- @RequestParam(defaultValue=기본값) 
+--- 파라미터가 null이거나 빈문자 인 값들은 기본값으로 들어감
+
+-- 파라미터를 Map으로 조회
+---@RequestParam map<String, Object> param
+
+--@ModelAttribute
+--- (@ModelAttribute 객체 이름)
+--- 요청 값들을 해당 객체에 넣어준 것을 파라미터로 사용 가능
+--- 원리 : 객체를 생성하고 해당 객체의 프로퍼티를 찾아서 프로퍼티의 setter를 호출하여
+             파라미터의 값을 입력(바인딩)한다.
+--- @ModelAttribute도 생략 가능하다!
+---- 하지만 생략 시 @RequestParam도 생략할 수 있어서 혼란이 발생)
+---- 규칙이 존재
+       (단순타입(String포함)은 @RequestParam, 그 외  @ModelAttribute)
+  
+- 요청 메세지
+-- message body에 직접 데이터를 담아서 요청하는 경우
+-- 단순 텍스트의 경우
+--- HttpServletRequest의 inputStream을 불러오는 방식으로 읽을 수 있다
+     ex.)  ServletInputStream inputStream = request.getInputStream();        
+            String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+             response.getWriter().write("ok");
+--- 간단하게 파라미터에 inputStream을 받아서 간단하게 처리 가능 
+    ex.) public void requestBodyStringV2(InputStream inputStream, Writer responseWriter) 
+                   String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8); 
+                   responseWriter.write("ok");                 
+
+--- 더 간단하게 파라미터에 HttpEntity<>를(메세지 컨버터) 이용하여 처리 가능
+     ex.) public HttpEntity<String> requestBodyStringV3(HttpEntity<String> httpEntity)
+                    String messageBody = httpEntity.getBody();
+                    return new HttpEntity<>("ok")
+---- HttpEntity : http 헤더, 바디 정보를 편리하게 조회 가능
+      (단 요청파라미터와는 전혀 관계 없음)
+      (요청, 응답 모두 사용가능)                 
+
+--- 더욱 간단하게 파라미터에 @RequestBody 를 이용하여 처리 가능
+     ex.) public String requestBodyStringV4(@RequestBody String messageBody)    
+                    return "ok";
+---- @RequestBody : 메시지 바디 데이터를 조회 가능
+       (단, 헤더 정보가 필요하다면 HttpEntity, @RequestHeader 사용)
+       (@RequestBody는 String만이 아니라 직접 만든 객체타입으로 지정할 수 있다)
+       (생략 불가능)
+-- JSON의 경우
+
+--- Jackson의 objectMapper()을 이용해서 inputStream으로 읽고 
+     해당 메세지 바디를 readValue로 객체로 변환
+
+--- 간단하게 @RequestBody를 이용하여 메세지 바디 값을 문자로 읽고
+     해당 메세지 바디를 readValue로 객체로 변환
+
+--- 더 간단하게 @RequestBody, 또는 HttpEntity를 해당 객체로 읽어옴
+
+*** @ResponseBody가 메서드 레벨에 있는 경우 return값을 객체로 두면
+     자동적으로 응답 값을 JSON으로 컨버트해줌!
+      (단, Accept가  application/json 이어야 한다)
+
+ 

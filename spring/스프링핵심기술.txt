@@ -329,6 +329,7 @@
        (단, 헤더 정보가 필요하다면 HttpEntity, @RequestHeader 사용)
        (@RequestBody는 String만이 아니라 직접 만든 객체타입으로 지정할 수 있다)
        (생략 불가능)
+
 -- JSON의 경우
 
 --- Jackson의 objectMapper()을 이용해서 inputStream으로 읽고 
@@ -342,5 +343,78 @@
 *** @ResponseBody가 메서드 레벨에 있는 경우 return값을 객체로 두면
      자동적으로 응답 값을 JSON으로 컨버트해줌!
       (단, Accept가  application/json 이어야 한다)
+
+- 응답 정적리소스
+-- 정적인 HTML을 제공[참고 39페이지]
+-- src/main/resources의 /static, /public, /resources,/META-INF/resources
+   해당 경로는 스프링부트에서 정적리소스 서비스를 제공함
+- 응답 뷰템플릿 
+-- 동적인 HTML 제공하는 서버사이드 렌더링
+-- 스프링부트에서 기본 경로는 src/main/resources/templates
+
+- HTTP 메시지 사용
+-- API제공하는 경우
+
+-- 응답 메세지 제공 방법
+--- 단순텍스트의 경우
+---- HttpServletResponse 의 getWriter().write()를 이용한느 방법
+---- 더 간단하게 ResponseEntity<>를 사용하여 리턴값으로 ResponseEntity<> 객체를 반환
+     (생성할때  new ResponseEntity<>(메세지바디, http상태값) 가능하다)
+---- 더욱 간단하게 메서드레벨에 @ResponseBody을 넣고 리턴값으로 문자열
+
+--- JSON의 경우
+---- ResponseEntity<>를 사용하여 리턴값으로 ResponseEntity<> 객체를 반환하여
+      생성자에 객체을 값으로 넣음
+      ex.)  return new ResponseEntity<>(helloData, HttpStatus.OK); 
+---- 더 간단하게 @ResponseBody넣고 리턴값으로 객체을 반환
+      (상태코드를 지정해주고 싶다면 메서드 레벨에 @ResponseStatus(상태코드)를 넣어줌)
+
+- HTTP 메세지 컨버터
+-- @ResponseBody를 사용하면 뷰리졸버가 아닌 메세지 컨버터가 동작하게됨
+--- 기본문자는 StringHttpMessageConverter
+     기본객체는  MappingJackson2HttpMessageConverter 
+
+-- HTTP컨버터는 요청 응답 둘다 사용됨
+
+-- 우선순위 (클래스타입과 메디어타입 둘을 체크하여 컨버터 결정) [참고 47]
+--- ByteArrayHttpMessageConverter (1순위)
+---- byte[]데이터를 처리하며 클래스타입이 byte[], 미디어타입이 */*
+---- 요청 시  @RequestBody byte[] data 
+---- 응답 시  @ResponseBody return byte[], 미디어타입 application/octet-stream
+--- StringHttpMessageConverter  (2순위) 
+---- String문자로 데이터 처리하며 클래스타입은 Stirng, 미디어타입은 */*
+---- 요청 시  @RequestBody String data 
+---- 응답 시  @ResponseBody return "", 미디어타입은 text/plain
+--- MappingJackson2HttpMessageConverter (3순위)
+---- 클래스타입은 객체, HashMap, 미디어타입은 application/json
+---- 요청 시  @RequestBody 객체 data 
+---- 응답 시  @ResponseBody return 객체, 미디어타입 application/json
+
+-- HTTP 요청 데이터 읽기 순서
+---HTTP요청이 오고 컨트롤러에서  @RequestBody, HttpEntity를 사용하면
+    메세지 컨버터가 작동하고 우선순위에 따라 작동할 컨터버를 찾음(canRead())
+    작동할 컨버터를 찾으면 컨버터의 read()를 호출하여 객체를 생성
+
+-- HTTP 응답 데이터 읽기 순서
+---컨트롤러에서  @RequestBody, HttpEntity의 값이 반환되면
+    메시지컨버터가 메세지를 쓸 수있는 컨버터를 찾음(canWrite())
+    작동할 컨버터를 찾으면 컨버터의 write()를 호출하여 http응답 메시지바디에 데이터를 생성
+
+-- 동작방식
+--- 메시지 컨버터는 핸들러 어댑터쪽에서 동작한다
+--- 요청의 경우 @RequestBody, HttpEntity를 처리하는 argumentResolver들은
+     메시지컨버터를 사용하여 파라미터의 필요한 값들을 생성함!!
+--- 응답의 경우 @ResponseBody와 HttpEntity 를 처리하는 ReturnValueHandler들은
+      메시지컨버터를 사용하여 응답 값을 생성 
+--- 알아야할 구조
+---- argumentResolver
+----- 핸들러 어댑터에서 컨트롤러의 메서드를 쓸때 
+      메서드의 다양한 파라미터 타입의 값들을 넣어주는 리졸버
+----- --- 어뎁터에서 필요한 파라미터를  argumentResolver를 이용하여
+     파라미터를 준비하고나서 컨트롤러의 메서드를 실행 
+
+---- ReturnValueHandler
+----- 컨트롤러 메서드를 반환할때 응답값으로 처리해주는 역할
+
 
  

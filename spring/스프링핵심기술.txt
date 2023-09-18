@@ -301,6 +301,9 @@
 ---- 하지만 생략 시 @RequestParam도 생략할 수 있어서 혼란이 발생)
 ---- 규칙이 존재
        (단순타입(String포함)은 @RequestParam, 그 외  @ModelAttribute)
+--- @modelAttribute를 쓴 객체가 자동으로 model에 등록됨! (즉, model.addAttribute()를 쓸 필요가 없다)
+     (@modelAttribute("이름") 이름을 따로 지정해주지 않으면 해당 객체의 클래스이름에서 첫글자를 소문자로 하여
+       model에 자동 등록됨)
   
 - 요청 메세지
 -- message body에 직접 데이터를 담아서 요청하는 경우

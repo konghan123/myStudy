@@ -263,4 +263,34 @@ ex.  <td th:switch="${user.age}">
 - 라디오버튼
 -- 체크박스와 같지만 hidden인풋은 들어가지 않음
     (무조건 한개는 선택이 되기 때문)
+
+3. 메시지
+- 다양한 하드코딩 값을 한곳에서 관리하는 것
+- .properties파일에 key, value값을 둠
+- 언어적용도 가능 (http헤더의 accept-language를 이용)
+- 스프링에서도 기본적으로 제공함 
+- 메시지 소스 세팅
+-- application.properties 파일에 
+     spring.messages.basename=messages  
+
+-- 소스 세팅 시 스프링에서는 자동으로 빈으로 등록됨
+ 
+-- basename에 맞는 메세지 properties파일을 만들어준다
+
+- 메시지 사용
+-- MessageSource 객체를 사용
+-- MessageSource 객체.getMassage(code, 매개변수, 기본 메세지, Locale.getDefault())
+-- 매개변수를 사용할 시 프로퍼티 파일에 key 값에 매개변수가 있어야하며
+    ex. {0}, 해당 매개변수를 사용할 때 매개변수에 new Object[]{"메세지값"}을 넣어줌
+    그렇게 하면 해당 value + 메세지값 으로 메세지를 보여줌
+-- locale을 지정해주면 언어에 맞는 프로퍼티 파일을 읽어서 메시지를 보여줌
+  ex. MessageSource 객체.getMassage(code, 매개변수, 기본 메세지, Locale.KOREA)
+-- locale이 null일 경우 시스템 기본 locale을 불러와 ko_KR이므로 message_ko.properties를 불러옴
+
+- 타임리프에서 메시지 사용
+-- th:text=#{프로퍼티key값}
+-- th:text=#{프로퍼티key값(${프로퍼티 key값})}
+   (매개변수 사용법)
+
+    
  

@@ -292,5 +292,7 @@ ex.  <td th:switch="${user.age}">
 -- th:text=#{프로퍼티key값(${프로퍼티 key값})}
    (매개변수 사용법)
 
+4. 검증
+- 
     
  

@@ -293,6 +293,7 @@ ex.  <td th:switch="${user.age}">
    (매개변수 사용법)
 
 4. 검증
+
 - BindingResult
 -- 스프링에서 지원하는 검증오류 보관 객체
 
@@ -332,8 +333,146 @@ ex.  <td th:switch="${user.age}">
 ---- new FieldError(객체이름, 필드, 거절된값, 바인드실패인지검증실패인지 구분값, 메세지코드, 메세지파라미터, 오류메시지)
                                                rejectedValue bindingFailure(true,false)             codes          arguments 
 
+---- application.properties에 errors를 추가하여 error에 대한 프로퍼티파일을 따로 만들어서 사용할 수 있다.
+      FieldError의 인자로 codes의 경우 errors.properties의 key값을 넣어주면 해당하는 value의 메세지값이 매핑됨
+      (단, new String[]로 인자를 넣어야함)
+      (배열로 받는 이유는 첫번째 key값을 못찾을 경우 두번째key로 찾음) 
+      value값에 파라미터를 남긴경우 FieldError의 arguments인자에 new Object[]를 넣어줌
+     ex.  FieldError(객체이름, 필드, 거절된값, 바인드실패유무, new String[]{"requir.item"}, new Object[]{"상품", "확인"}
+      
 -- ObjectError
 --- FieldError처럼 유사한 생성자 두가지를 지원함 
 
-    
+-- rejectValue(), reject()
+--- 굳이 FieldError, ObjectError를 사용하지 않고 간단하게 오류 구현 가능
+
+--- 프로퍼티 key값을 넣을 때 축약된 값을 넣음
+     ex. required.item.itemName -> required
+     만약 required.item.itemName key와 required key 둘다 있으면??
+      -> 자세할수록 우선순위로 잡음!!
+     (이렇게 함으로 프로퍼티파일만 수정하여 오류메시지를 관리 가능하다)
+---- 축약이 가능한 이유
+      스프링이 지원해줌!! (MessageCodesReslover)
+      rejectValue()를 쓸때 MessageCodesReslover를 호출하여 오류코드에 해당되는
+      모든 메세지오류코드(key)를 불러온다음 우선순위를 메겨 rejectValue에 반환해줌
+----- 메시지생성 규칙(우선순위)
+------ 객체의 경우
+      1. code + . + 오브젝트이름
+      2. code
+------ 필드의 경우
+      1.code + . + 오브젝트이름 + . + 필드이름
+      2.code + . + 필드이름
+      3.code + . + 필드 데이터 타입
+      4.code
+
+--- 사용법
+---- bindingResult.rejectvalue(필드이름, 축약된 에러 프로퍼티 key값, 파라미터값, 디폴트메세지) -- 필드
+---- bindingResult.reject(축약된 에러 프로퍼티 key값, 파라미터값, 디폴트메세지) -- 전역
+
+--- type에러의 경우 Spring에서 지원해주는 문구가 뜨는데
+     해당 문구도 커스터마이징 가능!
+     typeMismatch에 대한 값들을 에러 프로퍼티에 추가시켜줌
+
+-- ValidationUtils
+--- if문 쓸 필요도 없이 한줄만으로 간단하게 bindingResult를 써서 표현가능
+     ex. ValidationUtils.rejectIfEmptyOrWhitespace(bindingResult, 필드, 에러 프로퍼티 key값)
+
+
+- 오류코드 관리 전략
+-- 핵심!! 구체적인 것에서 덜 구체적인 것으로!!
+   정말 중요한 메세지는 구체적으로 구성
+   별로 중요하지 않는 범용성이 넓은 메세지는 덜 구체적으로 구성
+
+- Validator
+-- Spring에서 지원하는 인터페이스이며 검증에 대한 로직을
+    따로 작성하여 관리할 수 있음!
+
+-- 빈으로 등록하고 해당 컨트롤러단에
+    validator.validate(item, bindingResult)를 해주면 끝
+
+-- 단위마다 검증할 구현체를 만들면 됨!
+
+-- WebDataBinder를 사용하여 validator.validate()를 쓰지 않아도
+    자동으로 컨트롤러를 불러올 때마다 검증이 가능하다
+    메서드단에 @InitBinder를 넣고 WebDataBinder를 매개변수로 가지는 메서드를 만든다
+    그리고 해당 WebDataBinder객체의 addValidators(구현체)를 통해
+    만든 검증구현체를 넣어줌
+    그리고 @ModelAttribute앞에 @Validated를 넣어주면 끝
+    (@Validated는 검증을 실행하라는 어노테이션)
+    예시)
+    public void init(WebDataBinder dataBinder) {
+        dataBinder.addValidators(itemValidator);
+    }
+
+-- 한 컨트롤러에 여러 검증 구현체가 있다면
+    Validator 인터페이스의 support를 통해 구분된다
+
+-- 글로벌하게 검증기를 넣을 수 있음 (모든 컨트롤러에 해당 검증 적용)
+    @SpringBootApplication이 적용된 클래스에
+    WebMvcConfogurer 인터페이스를 구현받고
+    해당 인터페이스의 getValidator()를 추가하여
+    리턴값으로 해당하는 Validator 구현체를 넣어주면 된다.
+
+5. Bean Validation
+
+- VO의 필드 값에 @NotNull 등으로 어노테이션을 넣어
+  따로 검증 로직을 넣을 필요없이 어노테이션만으로 간단하게 검증이 가능하다
+
+- implementation 'org.springframework.boot:spring-boot-starter-validation'를 gradle에
+  추가해야함
+-- 해당 라이브러리를 넣으면 자동으로 BeanValidator를 넣고 스프링과 통합한다.
+    그리고 글로벌 Validator로 등록하고 어노테이션을 보고 검증을 수행
+    (단, 메서드단에 @Validated 필수)
+    이후 검증 오류가 발생하면 FieldError, ObjectError를 생성하여 BindingResult에 자동으로 담아줌
+   
+- @ModelAttribute를 통해 바인딩에 성공한 필드만 Bean Validation이 적용됨
+
+
+- 어노테이션 종류
+-- @NotBlank: 빈값 + 공백만 있는 경우를 허용하지 않는다. 
+-- @NotNull: null을 허용하지 않는다. 
+-- @Range(min = 1000, max = 1000000): 범위 안의 값이어야 한다. 
+-- @Max(9999): 최대 9999까지만 허용한다.
+
+- 사용법
+
+--필드 값의 경우
+
+--- VO필드값에 위에 해당하는 어노테이션을 추가함 
+
+--- 메세지를 커스텀해줄 때 두가지방법 존재 (우선순위) 
+1. 에러 프로퍼티에 해당하는 에러코드에 맞는 key값을 추가
+   ex. @NotBlank 의경우 NotBlank.item.itemName = 공백 불가능
+   파라미터가 들어갈 경우 {0} 은 필드명이며 그 이후는 애너테이션마다 다름
+2. 에노테이션(message="")를 통해 메세지 커스텀
+
+-- 오브젝트의 경우
+
+--- 클래스 영역에 @ScriptAssert(lang="javascript", script="조건", message="메세지")
+    를 추가해줌
+     (하지만 한계가 많음 실무에서 다른 객체끼리 묶어서 사용하는 경우도 있는데
+      그런경우 대응하기 힘듬)
+--- 보통 실무에서는 오브젝트 오류의 경우 직접 코드로 등록함
+     (bindingResult.reject()를 이용
+
+- 한계점
+- 한 VO에 대해 조건에 따라 검증 어노테이션이 달라질 경우 대응 할 수 없다.
+
+- 극복방법
+-- groups 기능 사용
+--- 그룹을 나누어 그룹마다 검증방법을 다르게 적용할 수 있다.
+
+--- 단, 복잡해서 잘 안씀
+
+--- 사용법
+---- 마킹을 위한 인터페이스 생성 
+---- VO클래스의 필드에 적용된 검증 어노테이션에 
+      @어노테이션(groups = {마킹인터페이스})로 그룹을 나눔
+---- 컨트롤러단 메서드에서 @Validated에서 @Validated(마킹인터페이스.class)를 추가
+      
+-- 등록, 수정 등 로직마다 별도 모델 객체를 사용
+
+
+
+
  

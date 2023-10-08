@@ -470,8 +470,22 @@ ex.  <td th:switch="${user.age}">
       @어노테이션(groups = {마킹인터페이스})로 그룹을 나눔
 ---- 컨트롤러단 메서드에서 @Validated에서 @Validated(마킹인터페이스.class)를 추가
       
--- 등록, 수정 등 로직마다 별도 모델 객체를 사용
+-- 등록, 수정 등 로직마다 검증을 위한 별도 폼 객체를 사용
 
+--- 각각 로직에 맞는 별도 폼 객체를 만들고 VO객체랑 필드를 맞추고 validation어노테이션만 다르게 설정
+     컨트롤러 메서드에 @ModelAttribute에 만들어준 별도 폼 객체를 넣어줌
+     (@ModelAttribute이름을 그대로 두고 싶다면 @ModelAttribute("기존 모델")로 지정해줌)
+     그리고 save, edit 등 값을 넣을 땐 VO를 생성하여 별도 폼 객체에 담긴 값을 넣어줌
+
+- HTTP 메세지 검증
+
+--  컨트롤러 메세지 파라미터안에 @RequestBody 뒤에 @Validated를 넣어줌
+    (해당 메세지바디 객체 뒤에 BindingResult객체도 넣어줌)
+
+-- 하지만 메세지컨버터에서 요청 JSON을 객체로 못만든 경우에는 컨트롤러에 들어올 때 컨트롤러 호출이 중단됨
+    (@RequestBody의 경우 @ModelAttribute와 다르게 각각 필드 단위가 아니라 전체 객체 단위로 적용되기 때문에
+     메세지컨버터가 작동이 성공해서 객체가 만들어져야 @Validated가 적용됨)
+     
 
 
 

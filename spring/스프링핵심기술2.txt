@@ -563,3 +563,49 @@ ex.  <td th:switch="${user.age}">
              (단, 60보다 작은 값은 불가능)
 ----- 특정 세션 설정 : session.setMaxInactiveInterval(초); 
 
+6. 필터
+- 여러 로직에서 공통으로 필요한 로직을 처리해줌
+ ex.특정 URL로 오는것을 막거나 여러로직에서 로그인 여부에 따른 리다이렉트 처리
+
+- 공통 관심사 처리 (AOP랑 비슷함)
+- 하지만 수많은 부가기능이 존재
+
+- 필터의 흐름
+-- HTTP 요청 -> WAS -> 필터 -> 서블릿 -> 컨트롤러
+
+- 필터 제한
+--  HTTP 요청 -> WAS -> 필터(적절하지 않은 요청이라 판단하면 서블릿 호출x)
+   ex. 로그인 여부
+
+- 필터 체인
+-- HTTP 요청 -> WAS -> 필터 -> 필터2 -> 필터3 -> 서블릿 -> 컨트롤러
+
+- 필터를 구현하고 등록하면 서블릿 컨테이너가 자동으로 필터를 싱글톤으로 생성
+
+- 필터 인터페이스
+
+-- 필터 인터페이스를 통해 연결된 모든 필터를 거치고
+  필터가 없으면 서블릿이 호출됨
+-- 필터 인터페이스
+--- init() >> 필터 초기화 메서드, 서블릿 컨테이너가 생성될때 호출됨
+--- doFilter() >> 고객의 요청이 올 떄마다 해당 메서드 호출, 필터 로직 구현하는 곳
+--- destroy() >> 필터 종료 메서드, 서블릿 컨테이너가 종료될 때 호출됨
+
+- 사용법
+-- 필터를 사용하려면 필터 인터페이스를 구현받아야함
+-- doFilter()에 원하는 로직을 추가
+   (doFilter()의 ServletRequest는 HTTP요청이 아닌 경우까지 고려해서 만든 인터페이스이므로
+    HTTP요청이라면 다운 케스팅을 통해 HTTPServletRequest로 변경해줌
+--  doFilter()메서드의 FilterChain이라는 객체를 통해 다음 필터로 이어주거나 없으면
+    서블릿을 호출함
+    (로직에 FilterChain을 쓰지 않으면 다음 단계로 진행이 안됨)
+
+- 등록방법
+-- @Configuration 클래스에 FilterRegistrationBean을 빈으로 등록
+-- FilterRegistrationBean.setFilter(원하는 필터)를 통해 필터 지정
+-- FilterRegistrationBean.setOrder(숫자)해당 필터의 순서 지정
+-- filterRegistrationBean.addUrlPatterns(URL) 필터를 적용할 URL패턴 지정
+    (한번에 여러 패턴 지정 가능하며 모든URL에 적용할 땐 /* )
+ 
+
+

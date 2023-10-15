@@ -748,5 +748,79 @@ ex.  <td th:switch="${user.age}">
 ---- 에러 공통 처리 컨트롤러의 기능을 변경하고 싶다면 ErrorController인터페이스를 상속 받아서 구현하거나
       BasicErrorController를 상속받아서 기능을 추가하면 된다. 그리고 빈을 추가
 
+9. API 예외처리
 
+- 만약 공통 오류페이지 처리가 되어 있는 경우
+   API를 호출하여 해당하는 http상태코드로 오류가 떳을 때 
+   그에 맞는 응답 JSON이 아니라 오류 페이지 HTML을 보여준다.
+   (해당 오류에 맞는 오류페이지를 설정했기 때문)
+   그래서 API 따로 나눌 필요가 있다.
+   즉, 오류페이지 컨트롤러도 JSON응답을 할 수 있도록 변경해야함
+
+- 스프링 기본 오류 처리
+-- @RequestMapping의 produces를 통해 Http요청의 Accept의 데이터타입에 따라 분기할 수 있다.
+  ex. @RequestMapping(value="경로" produces = "데이터타입")
+
+- 스프링 부트 기본 오류 처리
+-- BasicErrorController
+--- BasicErrorController에서 이미 Http요청의 Accept의 데이터타입마다
+   분기를 만들어서 자동으로 오류처리해줌
+   (BasicErrorController HTML페이지를 제공하는 것은 매우 편리하지만
+    API오류의 경우 각 컨트롤러, 예외마다 다른 응답 결과를 출력해야할 경우가 있기에
+    BasicErrorController로는 API오류 출력의 한계가 존재)
+
+-- HandlerExceptoinResolver
+--- 예외가 발생하면 dispatchController에서 해당 resolver가 호출되어
+     해당 예외에 대한 커스텀을 할 수 있게 함
+
+--- 해당 예외에 대해 WAS에 가지않고 예외가 아닌 것처럼 정상적으로 로직이
+    실행 가능해짐
+    (반환값으로 ModelAndView를 던지기 때문에
+     WAS에 보낼지 정상적으로 처리할 지 선택가능)
+
+--- 활용
+---- 예외 상태코드 변환(예외에 대한 기존 상태코드 변환)
+---- 뷰 템플릿 처리 (ModelAndView를 채워서 예외에 따른 새로운 오류화면 렌더링)
+---- API 응답처리 (response.getWriter().println()처럼 HTTP응답 바디에 직접 데이터를 넣어줌)
+
+--- 사용법
+---- HandlerExceptoinResolver의 구현체를 만들고 해당 구현 메서드를 오버라이드하여
+      해당 예외에 대한 커스텀 로직을 만들어주고 빈 ModelAndView를 반환한다 그리고config파일에
+      extendHandlerExceptionResolvers메서드를 오버라이드하여 빈을 등록
+      (ex. response.sendError(상태코드) 등)
+      그럼 해당 예외로 정상적인 처리가 가능
+      (response.sendError의 경우 예외 정보를 조정하여 WAS에 보내는 것임)
+
+--- 반환값
+---- 빈 ModelAndView를 반환할경우 뷰를 렌더링 하지 않고 서블릿이 리턴됨
+---- ModelAndView를 지정할 경우 해당 정보를 이용하여 뷰를 렌더링함
+---- null로 반환할 경우 다음 ExceptionResolver을 찾아서 실행한다
+      만약 처리할 수 있는 ExceptionResolver가 없는 경우 예외처리가 되지않고
+      기존 예외를 WAS로 던짐
+
+
+-- 스프링에서 제공하는 ExceptionResolver 구현체들
+--- ExceptionHandlerExceptionResolver  
+---- 우선도가 가장 높음
+
+--- ResponseStatusExceptionResolver    
+---- 두번째 우선도
+---- HTTP 상태코드를 지정해줌
+---- @ResonseStatus이 익셉션파일에 존재하거나, 
+     ResponseStatusException가 있으면 해당 리졸버가 호출됨
+      (해당 코드를 까보면 response.sendError를 호출함)
+     @ResonseStatus만으론 조건에 따른 동적 변경이 힘들기 때문에 
+      그땐 ResponseStatusException을 쓴다
+      ex. @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason="잘못된 요청 오류")
+          public class BadRequestException extends RuntimeException{
+      ex. throw new ResponseStatusException(HttpStatus.NOT_FOUND, "error.bad", new IllegalArgumentException()); 
+
+--- DefaultHandlerExceptionResolver     
+---- 우선도가 가장 낮음
+---- 스프링에 존재하는 내부의 기본 예외를 처리함
+      바인딩 익셉션의 경우 스프링에서 객체를 만들때 타입이 맞지 않아
+      생기는 익셉션이다. 해당오류는 보통 클라이언트 측에서 잘못 기입하여
+      발생하는 오류이기때문에 500보다는 400에 어울린다.
+      해당 리졸버는 스프링 익셉션에 대해 오류 값을 지정해줄 수 있다.
+       (해당 코드를 까보면 response.sendError를 호출함)
 

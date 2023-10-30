@@ -37,7 +37,9 @@ public class FileStore {
         }
 
         String originalFilename = multipartFile.getOriginalFilename();
+        //기존 파일명
         String storeFileName = createStoreFileName(originalFilename);
+        // UUID를 통한 서버에 저장할 파일명
         multipartFile.transferTo(new File(getFullPath(storeFileName)));
         return new UploadFile(originalFilename, storeFileName);
     }

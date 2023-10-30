@@ -881,7 +881,7 @@ ex.  <td th:switch="${user.age}">
       해당 리졸버는 스프링 익셉션에 대해 오류 값을 지정해줄 수 있다.
        (해당 코드를 까보면 response.sendError를 호출함)
 
-- 스프링 타입 컨버터
+10. 스프링 타입 컨버터
 -- 개발자가 일일이 변경할 필요 없이 자동으로 타입을 변경해줌
 -- @RequestParam, @modelAttribute, @PathVariable을 쓰면 원하는 타입으로 자동으로 변경해줌
    (ex. @RequestParam Integer data) 
@@ -917,3 +917,83 @@ ex.  <td th:switch="${user.age}">
 ---- ${{}} >> 컨버전 서비스가 적용된 값을 뿌림
 ---- ${} >> 변수표현식(문자열로 값을 뿌림)
 ---- th:field의 경우 컨버터를 자동으로 적용한다
+
+-- 포맷터
+--- 어떤 객체를 특정한 포맷에 맞추어 출력할 때 쓰이는 것이 포맷터이다
+    ex. 1000 -> 1,000 
+
+--- 포맷터와 컨버터의 차이
+---- 포맷터: 객체 -> 문자
+---- 컨버터: 객체 -> 객체
+
+--- 포맷터 인터페이스는 Printer, Parser 인터페이스를 상속받음
+---- Printer -> 객체를 문자로 변환
+---- Parser -> 문자를 객체로 변환
+
+--- 포맷터를 지원하는 컨버젼 서비스 FormattingConversionService
+     (기존 컨버전 서비스의 경우 포맷터를 지원하지 않는다
+      하지만 해당 객체를 쓰면 어댑터 패턴을 사용해서 포맷터도 컨버터처럼
+       사용가능하게 만들어둠)
+
+--- 스프링에서는 어노테이션으로 포맷터를 지원한다.
+     필드 값에 @NumberFormat(pattern = "지정할 포맷")
+                   @DateTimeFormat(pattern = "지정할 포맷")
+     을 통해 지정할 수 있다
+     ex. @NumberFormat(pattern = "###.##0")
+          Integer num;
+
+--- 단, 메세지 컨버터에는 컨버전 서비스가 적용안됨!
+     (뷰 템플릿만 이용가능)
+
+11.파일 업로드
+
+- 보통 파일만 전송하는 것이 아니라 문자도 같이 전송함
+
+- 파일 업로드는 바이너리 데이터를 전송해야하기에
+   HTTP는 ContentType에 mutipart/form-data라는 전송 방식을 제공함
+   (해당 타입으로 생성되는 http메시지는 [2페이지 참고]
+
+- 멀티파트 사용옵션 (application.properties에 등록)
+-- spring.servlet.multipart.max-file-size=1MB
+    (파일 하나의 최대 사이즈 기본값이 1MB)
+-- spring.servlet.multipart.max-request-size=10MB
+    (여러 파일 전체 합한 사이즈 기본값이 10MB)
+-- spring.servlet.multipart.enable = false
+    (mutipart/form-data 처리 기능을 끔)
+    (해당 옵션을 키면 스프링의 DispatcherServlet에서
+     멀티 파트 리졸버를 실행하여 일반적인 HttpServletRequest가
+     아닌 MutipartHttpServletRequest로 변환하여 반환한다
+      그래서 기존 request보다 편한 메서드를 통해 관련 로직을 처리 가능)
+     (하지만 스프링에선 MultipartFile라는 더 편한 방법이 존재)
+
+-사용법(스프링 사용 전)
+
+-- request.getParts()를 통해 mutipart/form-data방식에서 나누어진 부분을 받을 수 있음
+ 
+-- file.dir = 경로
+    (application.properties 등록)
+    (파일을 업로드할 경로를 지정해줌 그리고 마지막에 / 포함하는 거 주의)
+    (@Value(${properties key값}) 을 통해 해당 value를 필드의 값으로 넣을 수 있음)
+     ex. @Value(${file.dir})
+          String filDir;
+
+-- 이후 part.getInputStream()을 통해 바이너리데이터를 들고오고
+    StreamUtils.copyToString(인풋스트림, charsets.UTF-8)을 통해
+    string으로 값을 읽어올 수 있다.
+
+-- 이후 데이터를 저장할 땐 지정했던 경로와 해당 파일이름(part.getSumittedFileName())을 합친 경로로
+   part.write(합친경로)로 넣어주면 끝 
+
+- 사용법 (스프링 사용)
+-- 컨트롤러단 메서드에 @RequestParam에서 MultipartFile이라는 객체로
+    해당 업로드한 파일 데이터를 가져올 수 있다)
+-- file.getOriginalFilename()으로 파일 이름 들고옴
+-- 그리고 해당 MultipartFile객체.transferTo(파일객체(경로))를 통해
+     파일 저장까지 가능
+     (@ModelAttribute에서도 가능)
+
+-- 파일을 다운 받는 로직을 짤땐 HTTP 헤더에 CONTENT DISPOSITION의 값을
+    넣어줘야 브라우저가 이파일은 다운받는 파일이라고 인식함
+    그리고 고객이 지정한 파일명으로 다운 받기 위해
+    CONTENT DISPOSITION값에 attachment; filename="업로드 파일명" 를 넣어줌
+ 

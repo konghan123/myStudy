@@ -61,7 +61,7 @@ public class ItemController {
     }
 
     @ResponseBody
-    @GetMapping("/images/{filename}")
+    @GetMapping("/images/{filename}") // 보안부족
     public Resource downloadImage(@PathVariable String filename) throws MalformedURLException {
         return new UrlResource("file:" + fileStore.getFullPath(filename));
     }

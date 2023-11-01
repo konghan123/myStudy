@@ -50,13 +50,30 @@
     처리할 수 없으면 다음 드라이버 순서를 넘김
 
 -- DB에 INSERT하기
--- String으로 sql문 짜고 Connection객체를 들고와서
+--- String으로 sql문 짜고 Connection객체를 들고와서
     그 객체로 prepareStatement() 객체를 들고옴
     그리고 sql문의 ? 부분에  prepareStatement객체.set타입(?순서, 값)
     을 통해 sql값 세팅 그 후 executeUpdate()로 DB에 sql을 넘겨서 값을 받음
 
--- 이후 prepareStatement, Connection순으로 객체를 닫아줘야함!
+--- 이후 prepareStatement, Connection순으로 객체를 닫아줘야함!
     (반드시 finally에서 호출)
+
+-- DB에서 SELECT하기
+
+--- String으로 sql문 짜고 Connection객체를 들고와서
+    그 객체로 prepareStatement() 객체를 들고옴
+    그리고 sql문의 ? 부분에  prepareStatement객체.set타입(?순서, 값)
+    을 통해 sql값 세팅 그 후 ResultSet을  prepareStatement를 통해 불러와서
+    rs.next()로 한번 넘어가 쿼리에 대한 값을 불러오고
+    그 값들을 DTO에 담는다!
+
+--- ResultSet
+---- select 쿼리 결과가 들어가 있음
+---- ResultSet 안에는 커서가 존재하여 rs.next()하면
+      커서가 다음으로 이동한다
+      (최초의 커서는 데이터를 가르키지 않기에 rs.next()를 한번 해줌)
+
+
 
 
 

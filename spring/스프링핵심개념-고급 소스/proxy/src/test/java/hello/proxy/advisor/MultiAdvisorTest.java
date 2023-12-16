@@ -28,7 +28,7 @@ public class MultiAdvisorTest {
         ServiceInterface proxy1 = (ServiceInterface) proxyFactory1.getProxy();
 
         //프록시2 생성, target -> proxy1 입력
-        ProxyFactory proxyFactory2 = new ProxyFactory(proxy1);
+        ProxyFactory proxyFactory2 = new ProxyFactory(proxy1); // 프록시1를 넣음!
         DefaultPointcutAdvisor advisor2 = new DefaultPointcutAdvisor(Pointcut.TRUE, new Advice2());
         proxyFactory2.addAdvisor(advisor2);
         ServiceInterface proxy2 = (ServiceInterface) proxyFactory2.getProxy();

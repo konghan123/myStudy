@@ -32,6 +32,7 @@ public class ExecutionTest {
     void exactMatch() {
         //public java.lang.String hello.aop.member.MemberServiceImpl.hello(java.lang.String)
         pointcut.setExpression("execution(public String hello.aop.member.MemberServiceImpl.hello(String))");
+        log.info("pointcut ={}", pointcut);
         assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
     }
 

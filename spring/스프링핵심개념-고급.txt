@@ -309,7 +309,28 @@
 -- 메서드단에 @Around("AspectJ표현식[조건]")을 넣어줌(포인트컷)
 -- 메서드를 생성하고 파라미터에 ProceedingJoinPoint를 넣어줌
 -- 공통로직 구현 후 실제 로직에 ProceedingJoinPoint객체.proceed() (어드바이스)
+-- 포인트컷을 분리할 경우 포인트컷표현식이 있는 메서드 이름을 넣어서
+   적용할 수 있다. (포인트컷 시그니처)
+    (포인트컷만 모아서 따로 클래스를 만들고 적용할 수 있음
+     그 경우 경로값을 지정해줌.)
+    (조건식도 가능하다)
+    ex . @Around("메서드(파라미터)")
+    ex.  @Around("allOrder() && allService()")
+    ex.  @Around("hello.aop.order.aop.Pointcuts.allOrder()")
+-- 어드바이스 순서의 경우 메서드단위가 아니라 클래스단위로 설정한다
+    ex. @Aspect
+         @Order(1)
+    그렇기 때문에 순서를 보장받고 싶다면 하나의 클래스에 어드바이저를 모아둘 수 없다.
 
+- 어드바이스 종류
+-- @Around >> 메서드 호출 전후에 수행, 가장 강력한 어드바이스이며 
+                       조인포인트 실행 여부 선택가능하며, 반환값 변환도가능, 예외값 설정도 가능하다
+                       (ProceedingJoinPoint) 
+                       (밑에 두개의 어노테이션을 다 합친게 @Around이다)
+-- @Before >>  조인포인트 이전에 실행 (해당 메서드 종료시 자동으로 타겟이 호출됨)
+-- @After Returning >> 조인포인트가 정상 완료 후 실행
+-- @After throwing >> 메서드가 예외를 던지는 경우 실행
+-- @After >> 조인포인트가 정상 또는 예외에 관계 없이 실행 (finally)
 
 7. 스프링 AOP
 - 핵심기능과 부가기능
@@ -362,3 +383,76 @@
 -- 애스펙트 >> 어드바이저(어드바이스 + 포인트컷)을 모듈화 한 것
 -- 위빙 >> 포인트컷으로 결정한 타겟의 조인 포인트에 어드바이스를 적용한 것
                (AOP를 적용하기 위해 애스펙트를 객체에 연결한 상태)
+
+8. 포인트 컷
+- 포인트컷 지시자(PCD) >> 표현식을 지시하는 문법
+ ex. @Pointcut("execution(* hello.aop.order..*(..))")` 
+      에서 "execution"이 지시자이다.
+
+- execution
+-- 문법 
+--- execution(접근제어자? 반환타입 선언타입? 메서드이름(파라미터) 예외?)
+     (뒤에 ?는 생략가능)
+     ex. public java.lang.String hello.aop.member.MemberServiceImpl.hello(java.lang.String)
+      >> execution(public String hello.aop.member.MemberServiceImpl.hello(String))
+--- *은 아무값이나 상관없다는 뜻
+
+--- (..)은 메서드 파라미터에서 아무 파라미터도 상관없다는 뜻
+
+--- ..는 패키지 경로에서는 해당 위치 패키지와 그 하위 패키지도 포함한다는 뜻
+
+--- 패턴형식이기 때문에 hell*, *ello 이런식으로 가능
+
+--- 부모타입을 선언해도 자식타입으로 매칭된다.
+     ex. "execution(* hello.aop.member.MemberServiceImpl.*(..))"
+          "execution(* hello.aop.member.MemberService.*(..))"
+            (둘은 매칭 가능하다)
+      주의점 : 자식타입에만 존재하는 메서드는 매칭할 수 없다
+
+--- (*)은 정확히 하나의 파라미터에 모든 타입 허용 
+
+--- (*,*)은 정확히 두개의 파라미터를 허용하며 모든 타입 허용
+
+--- (타입, ..)은 해당 타입으로 시작하며 뒤 파라미터들은 숫자와 무관하게 모든 파리미터 모든 타입 허용
+
+--- (타입, *)은 해당 타입으로 시작하며 뒤 파라미터가 1개만 들어가면서 모든 타입 허용
+
+- within
+-- 해당 클래스경로까지만 지정하여 해당하는 타입은 조인포인트 매칭시킴
+
+-- execution에서 클래스경로만 쓴다고 생각하면됨
+   (단, 부모타입을 지정하면 안됨, 정확히 타입을 지정해야함)
+    ex. within(hello.aop.member.MemberServiceImpl)
+
+- args
+-- 파라미터만 지정하여 해당하는 타입은 조인포인트 매칭
+
+-- execution에서 파라미터만 쓴다고 생각하면 됨
+    ex. args(String)
+
+-- args의 경우 파라미터는 부모타입도 가능하지만
+    execution의 경우 파라미터 값이 정확해야함
+    execution은 클래스에 선언된 정보를 기반으로 판단하고
+    args는 실제 넘어온 파라미터 객체 인스턴스를 기반으로 판단한다.
+
+- @target
+-- 지정한 어노테이션이 있는 클래스의 모든 메서드에 조인 포인트 적용 
+   ex. @target(hello.aop.member.annotation.ClassAop)
+
+-- 부모클래스의 메서드까지 어드바이스가 적용됨
+- @within
+-- 지정한 어노테이션이 있는 클래스의 모든 메서드에 조인 포인트 적용
+   ex. @within(hello.aop.member.annotation.ClassAop)
+
+-- 자기자신클래스의 메서드만! 어드바이스가 적용됨
+
+*** args, @args, @target은 단독으로 쓰여서는 안된다.
+     무조건 execution을 통해 적용대상을 줄여서 사용해야함
+     왜냐하면 해당 포인트 컷 지시자들은 객체 인스턴스가 생성되고(프록시 생성됨)
+     실행되는 런타임때 해당 지시자들이 어드바이스를 적용할지 판단하기 때문에
+     판단 전에 일단 프록시를 만드려고 한다.
+     프록시를 만들때 모든 빈에 대해서 프록시를 만드려고 할것이기때문에
+     그중에 final로 만들어진 빈에 대해서는 예외를 던진다.
+     그래서 미리 execution으로 최대한 거르고 해당 지시자들을 써줌
+ 
+

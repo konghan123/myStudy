@@ -136,7 +136,7 @@
      일반적으로는 서비스계층을 두어 별도로 처리함으로써 
      컨트롤러는 비즈니스 로직을 호출하는 역할을 맡는다)
 -한계
--- 매번 forward 메서드를 호출해야함
+-- 컨트롤러마다 매번 forward 메서드를 호출해야함
 -- 사용안되는 매개변수가 생김 (response의 경우 사용안됨)
 -- 공통처리가 힘듬
     (기능이 복잡해질수록 공통처리 부분이 늘어나는데
@@ -176,6 +176,7 @@
      BeanNameUrlHandlerMapping(빈이름으로 찾음)(2순위)
 -- 핸들러 어댑터 (HandlerAdapter)
 --- 찾은 핸들러를 실행시킬 핸들러 어뎁터를 찾고 실행
+    (이 핸들러가 애노테이션기반인지 예전 서블릿 기반인지 에 맞게 핸들러를 실행하기 위한 어뎁터) 
 --- RequsetMappingHandlerAdapter(어노테이션 RequestMapping인것 처리)(1순위)
 --- HttpRequestHandlerAdapter(인터페이스 httpRequestHandler인 것을 처리)(2순위)
 --- SimpleControllerHandlerAdapter(인터페이스 controller를 처리)(3순위)
@@ -197,6 +198,7 @@
 --- 클래스레벨에 적용시켜서 컨트롤러 메서드의 공통되는 물리주소를 적용시킬 수 있음
 --- 파라미터에 method를 넣어주면 전송방식을 지정해줄 수 있음
 ---- @GetMapping, @PostMapping으로 대체 가능
+
 --@RequestParam(이름)
 --- RequestMapping에 들어갈 파라미터를 해당이름으로 직접 지정해줄 수 있음                                   
 --- ex.) @RequestParam("user") == request.getParameter("user")
@@ -424,6 +426,7 @@
 - Redirect
 -- 새로고침은 내가 마지막에 했던 요.청을 다시 진행
 -- 그래서 리다이렉트를 통해 새로운 요청을 실행시킴
+-- return 값에 redirect:경로
 -- RedirectAttribute
 --- 리다이렉트 시 유용한 역할
 --- 요청메서드 파라미터에 RedirectAttributes를 추가하고

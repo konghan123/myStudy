@@ -334,6 +334,7 @@ ex.  <td th:switch="${user.age}">
                                                rejectedValue bindingFailure(true,false)             codes          arguments 
 
 ---- application.properties에 errors를 추가하여 error에 대한 프로퍼티파일을 따로 만들어서 사용할 수 있다.
+      (국제화 처리방법)
       FieldError의 인자로 codes의 경우 errors.properties의 key값을 넣어주면 해당하는 value의 메세지값이 매핑됨
       (단, new String[]로 인자를 넣어야함)
       (배열로 받는 이유는 첫번째 key값을 못찾을 경우 두번째key로 찾음) 
@@ -490,7 +491,7 @@ ex.  <td th:switch="${user.age}">
 - 쿠키
 
 -- 영속쿠키 >> 만료 날짜를 입력하면 해당날짜까지 유지
--- 세션쿠키 >> 만료 날짜를 생략하면 브랑줘 종료시 까지만 유지
+-- 세션쿠키 >> 만료 날짜를 생략하면 브라우저 종료시 까지만 유지
 
 -- 쿠키의 심각한 보안 문제
 
@@ -584,18 +585,17 @@ ex.  <td th:switch="${user.age}">
 
 - 필터 인터페이스
 
--- 필터 인터페이스를 통해 연결된 모든 필터를 거치고
-  필터가 없으면 서블릿이 호출됨
--- 필터 인터페이스
+-- Filter 인터페이스를 통해 연결된 모든 필터를 거치고 필터가 없으면 서블릿이 호출됨
+-- Filter 인터페이스
 --- init() >> 필터 초기화 메서드, 서블릿 컨테이너가 생성될때 호출됨
 --- doFilter() >> 고객의 요청이 올 떄마다 해당 메서드 호출, 필터 로직 구현하는 곳
 --- destroy() >> 필터 종료 메서드, 서블릿 컨테이너가 종료될 때 호출됨
 
 - 사용법
--- 필터를 사용하려면 필터 인터페이스를 구현받아야함
+-- 필터를 사용하려면 Filter 인터페이스를 구현받아야함
 -- doFilter()에 원하는 로직을 추가
    (doFilter()의 ServletRequest는 HTTP요청이 아닌 경우까지 고려해서 만든 인터페이스이므로
-    HTTP요청이라면 다운 케스팅을 통해 HTTPServletRequest로 변경해줌
+    HTTP요청이라면 다운 캐스팅을 통해 HTTPServletRequest로 변경해줌
 --  doFilter()메서드의 FilterChain이라는 객체를 통해 다음 필터로 이어주거나 없으면
     서블릿을 호출함
     (로직에 FilterChain을 쓰지 않으면 다음 단계로 진행이 안됨)
@@ -624,7 +624,7 @@ ex.  <td th:switch="${user.age}">
 - 인터셉터 체인
 -- HTTP 요청 -> WAS -> 필터 -> 서블릿(디스팻쳐) -> 스프링 인터셉터1 -> 스프링 인터셉터2 -> 컨트롤러
 
-- 스프링 인터셉터 인터페이스
+- 스프링 인터셉터 인터페이스 (HandlerInterceptor)
 
 -- preHandle() >> 컨트롤러 호출 전(핸들러 어댑터 호출 전)
                     >> true이면 다음으로 진행, false이면 진행안하고 어댑터 호출도 안함
@@ -687,7 +687,6 @@ ex.  <td th:switch="${user.age}">
 ---- 단순히 다시 요청하는 것이아니라 해당 오류 정보를 request attribute에 추가해줌
 
 -- 서블릿 예외 처리 (필터) -- DispatchType으로 중복호출 제거 (dispatchType = REQUEST)
-
 --- 처음 요청이 왔을 때 로그인 인증 체크필터, 인터셉터는 호출되었다.
      그렇게 검증이 끝난 상태에서 예외가 발생하여 WAS가 다시 요청할 때
      해당 필터가 호출되는 것은 매우 비효율적임!!
@@ -695,10 +694,10 @@ ex.  <td th:switch="${user.age}">
      그래서 서블릿은 DispatcherType이라는 정보를 제공함
 
 --- DispatcherType
-
 ---- 고객이 요청할 경우 DispatcherType = REQUEST
       오류 페이지에 대한 내부 요청의 경우 DispatcherType = ERROR
       (해당 값으로 구분이 가능하다)
+
 ---- 구분값
 ----- REQUEST: 클라이언트 요청 
 ----- ERROR: 오류 요청

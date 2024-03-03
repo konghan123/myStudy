@@ -1,0 +1,113 @@
+1. SELECT 연산 고급 활용
+
+- 쿼리 논리 처리 순서
+-- FROM >> JOIN >> WHERE >> GROUP BY
+   >> HAVING >> SELECT 컬럼 >> ORDER BY
+
+- BATCH란?
+-- 한번에 1개 이상의 쿼리를 실행하는 것을 1BATCH
+-- 로컬변수는 동일한 Batch 내에서만 참조 가능
+-- 동일한 Batch에서 변경된 개체는 비인식
+-- Compile 오류 시 Batch전체 취소
+-- Runtime 오류 시 대부분 Batch 중단
+    (제약 조건 위반은 현재 구문만 취소, 나머지 실행)
+
+-- 배치 지시어
+--- GO ( SSMS같은 SQL Server 유틸리티에서 지정해 사용 가능
+--- GO[count] : 현재 배치를 [count]만큼 반복 수행
+
+-- EXEC
+--- 여러 프로시저를 한 배치에 실행시킬 때 구문 앞에 EXEC를 넣어줌
+
+- SELECT-LIST 속성,동작 이해
+-- SELECT 컬럼에 변수를 할당한 경우 변수값 처리는
+   순차적으로 일어남
+   (앞 컬럼에서 변수에 +1해줬다면 이후 컬럼에서 해당 변수를
+    참조할 때 +1된 변수 값을 참조함)
+
+-- SELECT에서 변수 할당과 검색을 동시에 불가능하다.
+
+-- 스칼라변수의 값이 다중일 경우 마지막에 참조된 값이 참조됨
+
+- 데이터 유형과 함수
+
+-- 숫자
+
+--- bit 
+---- 0,1, null 값을 가짐
+---- 문자, 숫자는 다 1
+---- false이면 0, true이면 1
+
+--- 정수
+---- tinyint(1byte), smallint(2byte), int(4byte), bigint(8byte)
+
+--- 실수
+---- 고정 소수점 (decimal(값, 소수점) , numeric())
+
+---- 부정 소수점 (float(8byte), real(4byte))
+----- 정확한 숫자가 필요한 일반 업무에서는 비권장함
+
+---- 통화 데이터 (money(8byte), smallmoney(4byte))
+----- 일반적으로 잘 안쓰임 숫자에 FORMAT함수를 씀
+
+---- 반올림, 올림, 내림
+----- 특정 자리수 반올림 (ROUND(값, 자리수))
+----- 특정 자리수 올림 (ROUND(값 + 가중치(0.4), 자리수))
+----- 특정 자리수 내림 (ROUND(값, 자리수, 1))
+
+----- 정수 올림 (CEILING())
+----- 정수 내림 (FLOOR())
+
+---- 0숫자로 채우기 (RIGHT(CONCAT(), REPLACE(STR()))
+
+-- 문자
+
+--- 고정길이 (char(일반문자), nchar(유니코드))
+---- 선언 크기 만큼 공간(공백)을 차지 
+---- 후행 공백이 생김
+
+--- 가변길이 (varchar(일반문자), nvarchar(유니코드))
+---- 후행 공백은 명시적으로 지정 시 생김
+
+-- 날짜시간
+--- DATETIME(8byte), SMALLDATETIME(4byte)
+
+--- DATETIME2(소수자리수 -7까지 표현)
+
+--- 월별 일수 구하기
+---- EOMONTH(날짜) 당월 
+---- EOMONTH(날짜, -1) 전월
+---- EOMONTH(날짜, 1) 명월
+---- DATEPART(DAY, EOMONTH(날짜)) 일자 구하기
+
+
+
+-- 새로운 함수들
+--- TRY_CONVERT() : 데이터 형변환 시 사용되며 실패 시 오류 대신 NULL 반환
+--- TRY_PARSE() : 문자열 데이터형 변환 시 사용되며 실패 시 오류 대신 NULL 반환
+--- CHOOSE (index, value1,value2 ...) : 나열 중 지정한 index값 반환
+--- FORMAT(값, 포맷형식, 유니코드)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

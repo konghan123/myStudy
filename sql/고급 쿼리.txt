@@ -139,14 +139,56 @@
    (행단위가 아닌 쿼리단위로 한번 호출됨)
 -- NEWID() >> 랜덤으로 고유값을 생성
 
+2. DML (data mutipulation language )
+
+- VALUES (테이블 값 생성자)
+-- 테이블 입력으로 사용됨
+
+-- 용도
+--- FROM() 파생테이블 ex. ( FROM(VALUES (1),(2),(3) ) )
+--- INSERT... VALUES
+--- MERGE의 USING
+
+- INSERT, UPDATE, DELETE + TOP()
+-- 변경될 데이터 갯수를 제한할 수 있다.
+
+- UPDATE SET절 고급 활용
+-- UPDATE 테이블 SET @변수 = 값 = 연산식  
+  (이런식으로 사용 가능)
+
+-- UPDATE 테이블 SET
+    , 값1      = 값2
+    , 값2      = 값1
+    (이런식으로 값 교환 가능) 
+
+- INSERT, UPDATE, DELETE + OUTPUT
+-- 문법 : OUTPUT , deleted / inserted / 테이블이름 + . + 컬럼이름
+         (OUTPUT에 명시값도 지정 가능 ex. ' ', 2, 'ㅇㅇ'
+
+-- 변경(전/후) 행 데이터 반환
+
+-- 테이블 입력 후 재활용 가능
+
+- Composable DML 
+-- OUTPUT 결과를 테이블 입력으로 사용
+
+ex. INSERT INTO 테이블1(output값1,output값2,output값3)
+    SELECT output값1,output값2,output값3
+    FROM(
+             UPDATE 테이블2
+                   SET  a = b
+             OUTPUT 
+                  inserted.output값1 as output값1,
+                  deleted.output값2 as output값2,
+                  inserted.output값3 as output값3
+     ) D
+
+- INSERT + EXEC
+-- INSERT 테이블 
+       EXEC 테이블을 호출하는 프로시저, 동적테이블
 
 
-
-
-
-
-
-
+                  
 
 
 

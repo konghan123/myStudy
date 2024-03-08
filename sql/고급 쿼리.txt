@@ -217,6 +217,92 @@ ex. INSERT INTO 테이블1(output값1,output값2,output값3)
 -- 생성
     CREATE TABLE #임시테이블 ( )
 
+- 동적쿼리 - EXEC() vs sp_excutesql
+-- 문자열로 구성된 동적 쿼리가 필요할때!
+-- 가급적이면 sp_excutesql을 쓰는것이 좋다
+    (EXEC()은 SQL 인젝션을 당할 확률이 크고 컴파일 부하도 적음)
+
+ex. sp_excutesql 예시
+
+    DECLARE @sql varchar(3000)
+    
+    SET @sql = 'SELECT ' + @변수 + 'FROM' + @변수
+    PRINT @sql;
+
+    EXCE sys.sp_exceutesql
+       @statement = @sql
+       @params = '변수이름1 변수타입1, 변수이름2 변수타입2'
+       @변수이름1 = 변수
+       @변수이름2 = 변수
+       (OUTPUT도 가능)
+
+- 프로시저 배열 값 넘기기
+-- STRING_SPLIT('값1 값2 값3' , 분리기준값)
+   (테이블처럼 사용하여 값마다 행으로 생성됨)
+ex. SELECT * FROM STRING_SPLIT('값1 값2 값3' , 분리기준값)
+
+
+3. 집합과 관계연산
+
+- 조인
+-- 조인 유발 원인
+--- 다른 테이블의 컬럼값을 가져오기 위해 >> 정규화된 테이블 >> 중복된 값을 제거하기 위해 
+     >> 처리되는 데이터 양을 줄이기 위해
+
+-- 목적
+--- 분리된 열 재결합
+
+--- 행복제 (중복 행 생성)
+
+--- 일치 행 검색과 결합 (INNER JOIN : 불일치 행 제거)
+
+--- NULL값 생성 (OUTER JOIN : 차집합 포함 )
+
+-- 조인 유형
+--- CROSS JOIN
+---- 양쪽 테이블의 행을 곱한만큼 열이 만들어짐
+---- 조인 조건은 없음 (ON이 없다)
+
+
+--- INNSER JOIN
+---- 교집합(중복 허용)
+
+--- OUTER (LEFT,RIGHT,FULL) JOIN 
+---- 차집합 + 교집합
+
+--- SELF JOIN
+
+-- 조인 조건 과 검색조건의 차이
+--- 의미에 맞게 구분해서 지정 
+---- 조인조건 : 두 테이블을 매칭하는 조건
+---- 검색조건 : SELECT 결과집합을 결정하는 조건
+
+--- INNER JOIN 의 경우 두조건 모두 상관없음
+
+--- OUTER JOIN의 경우 어디에 두는지에 따라 결과가 달라짐
+
+     (단, 특수한 경우 성능차이가 존재)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

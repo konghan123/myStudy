@@ -283,10 +283,134 @@ ex. SELECT * FROM STRING_SPLIT('값1 값2 값3' , 분리기준값)
 
      (단, 특수한 경우 성능차이가 존재)
 
+- INTERSECT
+-- 두 SELECT의 중복 값만 표현 (교집합)
+   ex. SELECT *** FROM
+       INTERSECT
+       SELECT *** FROM
 
+- UNION (ALL)
+-- 두 SELECT를 합쳐서 보여줌 (합집합) 
 
+-- UNION은 중복원소를 제거한 결과값을 보여줌
 
+- 서브쿼리
+-- 유형
+--- 중첩 ( 단독으로 실행 가능한 형태)
+--- 상관 ( 외부 테이블 열 참조)
 
+-- 내부적으로 조인으로 변환되어 실행됨
+
+-- 조인으로 한계가 있을 때 사용
+
+-- rowNuber 구하기 활용
+   SELECT rownum = (SELECT COUNT(*)
+                             FROM ORDER O
+                             WHERE N.ORDER_ID <= O.ORDER_ID
+                            )
+      FROM ORDER N
+
+-- 주의사항
+--- NOT IN을 조건으로 서브쿼리를 사용 시 
+     해당 서브쿼리는 NULL이 반환되는 경우가 있으면 안됨
+
+--- 서브쿼리 내에서는 반드시 해당 테이블 별칭을 지정해서 컬럼을 써야함
+    (안그럴 경우 외부 컬럼을 참조하여 잘못된 결과값을 보여줌)
+    (UPDATE, DELETE의 경우 큰 사고 발생!!!)
+
+- 테이블 표현식
+-- 파생테이블
+--- FROM() 절의 서브쿼리
+--- 단독으로 실행 가능한 중첩 서브쿼리여야함
+--- 가상 테이블 형식으로 사용
+--- ORDER BY 절은 사용 불가능
+
+--- 파생테이블, TOP을 이용하여 페이징 처리도 가능
+    SELECT TOP(갯수)
+     FROM ( SELECT TOP(갯수) 
+                 FROM ( SELECT TOP(페이지번호 * 갯수)
+                             FROM 테이블
+                          ORDER BY 순서 DESC
+                         )
+                  ORDER BY 순서 ASC
+               )
+      ORDER BY 순서 DESC
+
+--CTE
+--- WITH 테이블별칭 (컬럼) 
+    AS (파생테이블)
+    SELECT *****
+
+--- 파생테이블 + 뷰 장점  (즉, 재사용이 가능)
+--- CTE끼리도 참조하여 중첩으로 사용 가능 
+--- 파생테이블 처럼 페이징처리가 가능함!
+     (결과 쿼리가 깔끔해짐)
+
+--- 재귀처리 가능 ****** 중요! (좀 더 공부가 필요)
+---- 재귀처리를 통해 반복하게 됨(루프동작활용)
+ex.
+WITH 숫자반복 AS
+(
+  SELECT 1 AS NUM
+  UNION ALL
+  SELECT NUM + 1
+   FROM 숫자반복
+   WHERE NUM < 100
+)
+
+-- APPLY
+--- 기능
+---- 파생테이블 + 상관 서브쿼리의 조합
+---- 테이블 값 함수 호출
+
+--- 동작 
+---- 왼쪽에 지정된 테이블을 기준으로 테이블 표현식 반복호출
+
+--- 종류
+---- CROSS APPLY (INNER JOIN)
+---- OUTER APPLY (LEFT JOIN)
+
+--- 사용 (활용)
+ex . SELECT year1, year2
+      FROM 테이블
+      CROSS APPLY ( VALUES (YEAR('20210302') ) AS 테이블별칭(year1)
+      CROSS APPLY ( VALUES (테이블별칭.year1 + 1) ) AS 테이블별칭2(year2)
+      WHERE year2 >= 2021
+      (조건 값에 가공된 값을 서브쿼리처리없이 바로 쓸 수 있다)
+      (해당 예시는 VALUES를 써서 가상의 행을 만든것이다
+       서브쿼리도 똑같이 가능)   
+  
+ex .  SELECT
+       FROM 테이블
+     OUTER APLLY 사용자정의함수(테이블.컬럼)
+
+- 순위 함수
+-- 구조
+--- 순위 함수() OVER(PARTITION BY , ORDER BY)
+     (PARTITION BY를 통해 각 파트마다 순위를 매길 수 있음)
+
+-- 종류
+--- ROW_NUMBER() > 행번호 출력
+
+--- RANK() > 행 순위, 비연속순위 (ex. 1,2,2,4)
+
+--- DENSE_RANK()  > 행 순위, 연속순위 (ex. 1,2,2,3)
+
+--- NTILE(타일 수)
+---- 그룹 순번
+---- 타일(그룹, 버킷) 별 순번 달기  (ex. 팀원 배정)
+---- 타일별 행수 = 전체행수 / 타일 수 (ex. 행 9 / 타일 4)
+      (남은 행은 타일 순으로 1개씩 배정)
+
+--- OFFSET FETCH 구문 (페이징처리에 좋음)
+---- SQL SERVER 20212부터 가능
+
+---- 문법 
+----- ORDER BY 절에 사용 가능
+----- OFFSET (스킵할 행수) FETCH (검색할 행수)
+ ex. ORDER BY ORDER_ID DESC
+     OFFSET 20 ROWS FETCH NEXT 30 ROWS ONLY
+    (정렬된 행들중 20개를 건너뛰고 30개를 보여줌)
 
 
 

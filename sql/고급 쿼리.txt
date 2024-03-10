@@ -362,6 +362,7 @@ WITH 숫자반복 AS
 --- 기능
 ---- 파생테이블 + 상관 서브쿼리의 조합
 ---- 테이블 값 함수 호출
+---- 전처리할 때 쓰임!!!
 
 --- 동작 
 ---- 왼쪽에 지정된 테이블을 기준으로 테이블 표현식 반복호출
@@ -413,23 +414,145 @@ ex .  SELECT
     (정렬된 행들중 20개를 건너뛰고 30개를 보여줌)
 
 
+4. 집계와 통계
+
+- COUNT(*) vs COUNT(culumn) 
+  (NULL 포함)   (NULL 미포함)
+  (행이 존재하면) (해당 행의 culumn값이 존재하면)
+
+- COUNT()는 INT형이다. INT형의 숫자한계를 넘어서면 오류발생
+  그럴 땐 COUNT_BIG()을 써야함
+
+- OVER()
+-- 문법
+--- OVER( <window partition> <window order> <window frame>
+
+-- Window
+--- 행들의 그룹을 뜻함 (집계함수의 시작과 끝을 나타내는 범위)
+     (즉, 집계함수 초기화의 기준을 지정해줌)
+     ex. d값의 집계가 끝났으면 e값부터는 다시 0으로 돌아가서 계산
+
+--- PARTITION BY를 통해 어느 한 컬럼을 기준으로
+    window를 나누어 결과를 표현해줌 
+    
+-- Order
+--- ORDER BY 를 통해 순서를 표현
+--- Frame을 활용하여 결과값을 보여줌
+
+-- Frame
+--- 이동/누적 범위를 나타냄
+     (RANGE / ROWS) 옵션이 존재
+     (RANGE : 같은 값으로 그룹핑)
+     (ROWS : 개별 행 별로)
+
+--- ORDER BY를 통해 정렬된 데이터에서 (RANGE: 같은 값끼리 그룹지어 / ROWS: 개별행으로 ) 
+     누적 집계하여 결과를 보여줌
+      ex. 1997년도 기준으로 집계한 결과를 보여주고
+          누적으로 1997~1998년도 기준으로 집계한 결과를 보여줌
+          반복...
+ 
+--- 사용법
+    ( ROWS / RANGE ) BETWEEN 시작구문 AND 끝구문
+
+---- 시작 구문 종류
+----- UNBOUNDED PRECDING >> window의 첫행을 기준
+----- 숫자 PRECEDING >> 현재행(CURRENT ROW)를 기준으로 앞의 숫자 행만큼을 기준
+----- CURRENT ROW >> 현재 집계중인 행
+
+---- 끝 구문 종류
+----- UNBOUNDED FOLLOWING >> window의 끝행을 기준
+----- 숫자 FOLLOWING >> 현재행(CURRENT ROW)를 기준으로 뒤의 숫자 행만큼을 기준
+----- CURRENT ROW >> 현재 집계중인 행
+
+--- 데이터 정합성 문제
+---- ROWS로 FRAME을 짤때 OVER()의 ORDER BY값이 유일한 값이 아닌 경우 (ex. 년도)
+      순서 정렬이 불가능하여 누적 집계할 때 데이터 정합성 문제가 생김
+      (조건을 하나 더 추가하거나 해야함)
+
+- 분석함수
+-- OVER() 사용 가능 (window를 나눌 수 있음) 
+-- 분류
+--- 위치함수
+---- LAG(컬럼, offset숫자, 디폴트 숫자) >> 현재행에서 offset숫자 만큼 이전 행 값 (값이 NULL이면 디폴트숫자값)
+---- LEAD(컬럼, offset숫자, 디폴트 숫자) >> 현재행에서 offset숫자 만큼 다음 행 값 (값이 NULL이면 디폴트숫자값)
+---- FIRST_VALUE(컬럼) >> window Frame의 첫번째 행 값 (UNBOUNDED PRECDING 유사)
+---- LAST_VALUE(컬럼) >> window Frame의 마지막 행 값 (UNBOUNDED FOLLOWING 유사)
+
+--- 분포함수
+---- PERCENT_RANK >> 순위에 대한 백분율 (내 밑에 몇명이 있는가)
+      (RANK - 1) / (ROWS - 1)
+---- CUME_DIST >> 누적분포 누적순위에 대한 백분율 (밑에서 부터 내 위치는 어디인가)
+      (COUNT(*) <= VALUE ) / (ROWS)
+---- PERCENTILE_CONT >> 구간의 중앙값
+---- PERCENTILE_DISC >> 구간의 중앙값( 짝수개의 경우 소수점이 발생하기에 반올림한 값)
+
+- PIVOT 연산자
+-- 행을 열로 전환할 떄 사용
+   (전통적으론 CASE(GROUP BY)로 구현)
+-- 정적인 PIVOT만 가능함 (동적으로는 불가능한 제한사항이 존재함)
+
+-- 동적인 PIVOT은 전통적인 방법이 필요
+
+ex.
+SELECT [1993], [1994], [1995]
+  FROM
+    ( SELECT year
+       FROM 테이블
+    )
+ PIVOT
+ (
+    COUNT(year)    >> 집계값
+    FOR year IN ([1993], [1994], [1995])
+
+또는 (열을 행으로 변환)
+
+ UNPIVOT
+ (
+    값에 대한 컬럼이름지정    >> 집계값
+    FOR 열에대한 컬럼이름지정 IN ([1993], [1994], [1995])
+
+- 소계와 총계
+-- GROUPING SETS
+--- GROUP BY 결과에 대한 추가 집계 기능
+
+--- ROLLUP, CUBE로 단방향, 양방향으로 간단히 표현할 수 있지만
+    원하는 소계만 커스텀으로 만들고 싶다면
+    GROUPING SETS을 사용하면 됨
+
+--- 사용법
+---- 긴버전(단방향)
+ GROUP BY GROUPING SETS
+ (
+   (컬림1, 컬럼2), >> 두 값에 대한 소계
+    (컬럼1), >> 한 값에 대한 소계
+    (), >> 전체 소계
+  )
+---- 축약버전 (단방향)
+GROUP BY ROLLUP
+ (
+   (컬림1, 컬럼2)
+  )
+
+---- 긴버전(양방향)
+ GROUP BY GROUPING SETS
+ (
+   (컬림1, 컬럼2), >> 두 값에 대한 소계
+    (컬럼1), >> 한 값에 대한 소계
+    (컬럼2), >> 한 값에 대한 소계
+    (), >> 전체 소계
+  )
+---- 축약버전 (양방향)
+GROUP BY CUBE
+ (
+   (컬림1, 컬럼2)
+  )
 
 
+-- GROUPING(컬럼)
+--- 결과 행이 집계 데이터면 1, 아니면 0을 표시
+--- ORDER BY로 정렬할 때 많이 쓰임
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- GROUPING_ID(컬럼,컬럼...)
+--- 결과 행이 집계 데이터가 아니면 0, 집계 데이터면
+     그 안에서 그룹집계에 대해 2진수로 반환 (1,2,3..)
+--- ORDER BY로 정렬할 때 많이 쓰임

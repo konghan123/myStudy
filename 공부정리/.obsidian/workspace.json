@@ -1,0 +1,209 @@
+{
+  "main": {
+    "id": "16dacece270e34f4",
+    "type": "split",
+    "children": [
+      {
+        "id": "52bcaee6a39bbcb2",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "55fa48b3194398fb",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "새 탭"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "698688aab5c39052",
+    "type": "split",
+    "children": [
+      {
+        "id": "ece4aba8c44372e4",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c69a6a9fa9eab759",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-folder-closed",
+              "title": "파일 탐색기"
+            }
+          },
+          {
+            "id": "376e7b1bda758850",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "검색"
+            }
+          },
+          {
+            "id": "3883d34458aba79a",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "9d4f32ea5d047ace",
+    "type": "split",
+    "children": [
+      {
+        "id": "5e18698c81614a2d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f225bd7a65e851ba",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "자바/이펙티브 자바.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "이펙티브 자바의 백링크"
+            }
+          },
+          {
+            "id": "89c100e87b10c0e9",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "자바/이펙티브 자바.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "이펙티브 자바의 나가는 링크"
+            }
+          },
+          {
+            "id": "cba7be5e08a83088",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "e5da00248732d2f6",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "자바/이펙티브 자바.md"
+              },
+              "icon": "lucide-list",
+              "title": "이펙티브 자바 개요"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:퀵 스위처 열기": false,
+      "graph:그래프 뷰 열기": false,
+      "canvas:새 캔버스 만들기": false,
+      "daily-notes:오늘의 데일리 노트 열기": false,
+      "templates:템플릿 삽입": false,
+      "command-palette:명령어 팔레트 열기": false
+    }
+  },
+  "active": "55fa48b3194398fb",
+  "lastOpenFiles": [
+    "2024-05-14.md",
+    "2024-05-17.md",
+    "젠킨스/Pasted image 20241027134542.png",
+    "이펙티브 자바/Pasted image 20241020200903.png",
+    "젠킨스/Pasted image 20241027134838.png",
+    "젠킨스/Pasted image 20241027140048.png",
+    "젠킨스/Pasted image 20241027143148.png",
+    "젠킨스/Pasted image 20241027143214.png",
+    "이펙티브 자바/Pasted image 20241013141612.png",
+    "이펙티브 자바/Pasted image 20241010214508.png",
+    "자바/이펙티브 자바.md",
+    "젠킨스/젠킨스.md",
+    "젠킨스",
+    "이펙티브 자바/Pasted image 20241020195813.png",
+    "이펙티브 자바/Pasted image 20241020190321.png",
+    "자바/자바.md",
+    "자바/2024-09-30.md",
+    "유로지텍 (1) - 바로 가기.lnk",
+    "자바/이펙티브 자바 강의 자료/[완벽 공략] 이팩티브 자바 파트1.pdf",
+    "자바/이펙티브 자바 강의 자료",
+    "무제 폴더",
+    "자바/중급강의 자료 2/9. 컬렉션 프레임워크 - Map, Stack, Queue.pdf",
+    "자바/중급강의 자료 2/10. 컬렉션 프레임워크 - 순회, 정렬, 전체 정리.pdf",
+    "자바/중급강의 자료 2/8. 컬렉션 프레임워크 - Set.pdf",
+    "자바/중급강의 자료 2/7. 컬렉션 프레임워크 - HashSet.pdf",
+    "자바/중급강의 자료 2/6. 컬렉션 프레임워크 - 해시(Hash).pdf",
+    "리눅스/리눅스.md",
+    "리눅스/2024-09-06.md",
+    "리눅스/2024-08-23.md",
+    "자료구조/자료구조.md",
+    "C언어/C언어 기본.md",
+    "C언어/미리 공부한거 모음/C언어.md",
+    "C언어/2024-07-23.md",
+    "C언어/2024-07-19.md",
+    "C언어/2024-07-22.md",
+    "포인터/포인터.md",
+    "운영체제 기본/운영체제 기본.md",
+    "전공기본이론/전공 기본 이론.md",
+    "DB/MySQL 성능 최적화/MySQL 성능 최적화.md",
+    "스프링 보충/스프링 보충.md",
+    "SSL/SSL.md",
+    "실무 특화/컴퓨터구조 및 운영체제.md",
+    "네트워크이론/네트워크이론.md",
+    "2024-05-07.md",
+    "실무 특화/프로그램 개발.md"
+  ]
+}
